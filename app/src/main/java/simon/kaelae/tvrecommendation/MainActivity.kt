@@ -11,12 +11,8 @@ import android.os.Bundle
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.widget.AdapterView
+import android.widget.*
 import android.widget.AdapterView.OnItemLongClickListener
-import android.widget.Button
-import android.widget.GridView
-import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
@@ -26,7 +22,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import kotlinx.android.synthetic.main.phone_layout.*
 import simon.kaelae.tvrecommendation.recommendation.DefaultChannelRecommendationJobService
 import simon.kaelae.tvrecommendation.recommendation.PROGRAM_QUERY
 import java.security.KeyManagementException
@@ -97,8 +92,7 @@ class MainActivity : Activity() {
                     val openURL = Intent(android.content.Intent.ACTION_VIEW)
                     openURL.data = fblink
                     startActivity(openURL)
-                }
-                else if (position > 9) {
+                } else if (position > 9) {
 
                     val intent = Intent(this, PlaybackActivity::class.java)
                     val movie = Movie(
@@ -164,7 +158,7 @@ class MainActivity : Activity() {
 
             database.getReference("link").addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    fblink = Uri.parse(dataSnapshot.getValue(String::class.java))
+                    fblink = Uri.parse(dataSnapshot.getValue(String::class.java) ?: "about:blank")
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -173,7 +167,7 @@ class MainActivity : Activity() {
         }
         database.getReference("version").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                Cloud_ver = dataSnapshot.getValue(Int::class.java) as Int
+                Cloud_ver = dataSnapshot.getValue(Int::class.java) ?: Local_ver
                 if (Local_ver < Cloud_ver) {
                     Toast.makeText(this@MainActivity, "發現更新，請到設定下載", Toast.LENGTH_SHORT).show()
                 }
@@ -258,6 +252,7 @@ class MainActivity : Activity() {
         editor.apply()
         recreate();
     }
+
     private fun setUpSSL() {
         try {
             ProviderInstaller.installIfNeeded(applicationContext)

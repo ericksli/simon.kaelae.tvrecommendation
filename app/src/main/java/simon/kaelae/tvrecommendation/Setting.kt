@@ -33,7 +33,7 @@ class Setting : Activity() {
         val database = FirebaseDatabase.getInstance()
         database.getReference("version").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                Cloud_ver = dataSnapshot.getValue(Int::class.java) as Int
+                Cloud_ver = dataSnapshot.getValue(Int::class.java) ?: Local_ver
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -41,7 +41,7 @@ class Setting : Activity() {
         })
         database.getReference("dllink").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                dllink = Uri.parse(dataSnapshot.getValue(String::class.java))
+                dllink = Uri.parse(dataSnapshot.getValue(String::class.java) ?: "about:blank")
             }
 
             override fun onCancelled(error: DatabaseError) {

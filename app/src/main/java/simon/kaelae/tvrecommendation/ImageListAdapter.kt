@@ -65,7 +65,7 @@ internal class ImageListAdapter internal constructor(
 
             database.getReference("fbtitle").addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    holder.name!!.text = dataSnapshot.getValue(String::class.java)!!
+                    holder.name!!.text = dataSnapshot.getValue(String::class.java) ?: "Facebook"
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -86,7 +86,9 @@ internal class ImageListAdapter internal constructor(
             })
             database.getReference("fbbg").addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    convertView.setBackgroundColor(Color.parseColor(dataSnapshot.getValue(String::class.java)))
+                    dataSnapshot.getValue(String::class.java)?.let {
+                        convertView.setBackgroundColor(Color.parseColor(it))
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
