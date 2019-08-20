@@ -37,7 +37,6 @@ import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.cast.framework.CastButtonFactory
 import com.google.android.gms.cast.framework.CastContext
 import com.google.android.gms.cast.framework.CastState
-import com.google.android.gms.cast.framework.CastStateListener
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_exo.view.*
 import kotlinx.android.synthetic.main.item_post.view.*
@@ -57,8 +56,7 @@ class PlaybackVideoExoFragment : Fragment() {
 
     ): View? {
 
-        getContext()!!.getTheme().applyStyle(R.style.mytheme, true);
-
+        requireContext().theme.applyStyle(R.style.mytheme, true)
 
         val view: View = inflater.inflate(
             R.layout.activity_exo, container,
@@ -125,60 +123,53 @@ class PlaybackVideoExoFragment : Fragment() {
         CastButtonFactory.setUpMediaRouteButton(context, mMediaRouteButton);
 
         try {
-            val mCastContext = CastContext.getSharedInstance(context!!);
+            val mCastContext = CastContext.getSharedInstance(requireContext())
             if (mCastContext?.getCastState() != CastState.NO_DEVICES_AVAILABLE) {
                 mMediaRouteButton.setVisibility(View.VISIBLE);
             }
-            mCastContext?.addCastStateListener(object : CastStateListener {
-                override fun onCastStateChanged(state: Int) {
-                    if (state == CastState.NO_DEVICES_AVAILABLE)
-                        mMediaRouteButton.setVisibility(View.GONE);
-                    else {
-                        if (mMediaRouteButton.getVisibility() == View.GONE)
-                            mMediaRouteButton.setVisibility(View.VISIBLE);
-                    }
+            mCastContext?.addCastStateListener { state ->
+                if (state == CastState.NO_DEVICES_AVAILABLE)
+                    mMediaRouteButton.setVisibility(View.GONE);
+                else {
+                    if (mMediaRouteButton.getVisibility() == View.GONE)
+                        mMediaRouteButton.setVisibility(View.VISIBLE);
                 }
-            })
+            }
         } catch (e: java.lang.Exception) {
         }
 
-        send.setOnClickListener(object : View.OnClickListener {
-            override fun onClick(v: View?) {
-                if (send.text == "設定名稱") {
-                    sharedPreference.edit().putString("chat_name", message.text.toString()).apply()
-                    send.setText("發送")
-                    message.setText("")
-                    message.setHint("可以留言啦")
-                } else {
-                    if (sharedPreference.getString("chat_name", "") != "" && sharedPreference.getString("chat_name","")!!.contains("admin") == false && message.text.toString() != "") {
-                        //if (sharedPreference.getString("chat_name", "") != "" && message.text.toString() != "") {
-                        send.visibility = View.GONE
-                        val key = commentsReference.push().getKey()!!
-                        val value = HashMap<String, Any?>();
-                        value.put("name", sharedPreference.getString("chat_name", ""));
-                        value.put("msg", message.text.toString());
-                        value.put("time", ServerValue.TIMESTAMP);
-                        commentsReference.child(key).setValue(value).addOnSuccessListener {
+        send.setOnClickListener {
+            if (send.text == "設定名稱") {
+                sharedPreference.edit().putString("chat_name", message.text.toString()).apply()
+                send.setText("發送")
+                message.setText("")
+                message.setHint("可以留言啦")
+            } else {
+                if (sharedPreference.getString("chat_name", "") != "" && sharedPreference.getString(
+                        "chat_name",
+                        ""
+                    )!!.contains("admin") == false && message.text.toString() != ""
+                ) {
+                    //if (sharedPreference.getString("chat_name", "") != "" && message.text.toString() != "") {
+                    send.visibility = View.GONE
+                    val key = commentsReference.push().getKey()!!
+                    val value = HashMap<String, Any?>();
+                    value.put("name", sharedPreference.getString("chat_name", ""));
+                    value.put("msg", message.text.toString());
+                    value.put("time", ServerValue.TIMESTAMP);
+                    commentsReference.child(key).setValue(value).addOnSuccessListener {
 
-                            message.setText("")
-                            send.visibility = View.VISIBLE
-                        }
-
-                    } else {
-                        message.setError("內容不能留空")
+                        message.setText("")
+                        send.visibility = View.VISIBLE
                     }
+
+                } else {
+                    message.setError("內容不能留空")
                 }
             }
-        })
+        }
         return view
     }
-
-    override fun onStart() {
-        super.onStart()
-
-
-    }
-
 
     override fun onStop() {
         super.onStop()
@@ -593,15 +584,14 @@ class PlaybackVideoExoFragment : Fragment() {
 
     fun cast(title: String, url: String) {
         try {
-            val mCastContext = CastContext.getSharedInstance(context!!);
-            val movieMetadata = MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
-            movieMetadata.putString(MediaMetadata.KEY_TITLE, title);
+            val mCastContext = CastContext.getSharedInstance(requireContext())
+            val movieMetadata = MediaMetadata(MediaMetadata.MEDIA_TYPE_TV_SHOW)
+            movieMetadata.putString(MediaMetadata.KEY_TITLE, title)
             val mediaInfo = MediaInfo.Builder(url)
-                .setMetadata(movieMetadata).build();
-            val castPlayer = CastPlayer(mCastContext);
+                .setMetadata(movieMetadata).build()
+            val castPlayer = CastPlayer(mCastContext)
             castPlayer.loadItem(MediaQueueItem.Builder(mediaInfo).build(), 0)
-
-        } catch (e: java.lang.Exception) {
+        } catch (e: Exception) {
         }
     }
 

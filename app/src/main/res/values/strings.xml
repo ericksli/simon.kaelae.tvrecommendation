@@ -6,6 +6,7 @@
     <string name="error_fragment_message">An error occurred</string>
     <string name="dismiss_error">Dismiss</string>
 
+    <string name="media_route_menu_title">Play on&#8230;</string>
 
     <string name="play">Play</string>
     <string name="pause">Pause</string>
